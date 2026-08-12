@@ -481,14 +481,17 @@
                         const data = await googleRes.json();
                         if (data.items && data.items.length > 0) {
                             const vInfo = data.items[0].volumeInfo;
-                            bookData = {
-                                title: vInfo.title,
-                                author: vInfo.authors ? vInfo.authors.join(', ') : '',
-                                coverUrl: vInfo.imageLinks ? (vInfo.imageLinks.thumbnail || vInfo.imageLinks.smallThumbnail) : ''
-                            };
-                            if (bookData.coverUrl && bookData.coverUrl.startsWith('http:')) {
-                                bookData.coverUrl = bookData.coverUrl.replace('http:', 'https:');
-                            }
+                            const summary = data[0].summary;
+                            let coverUrl = summary.cover || "";
+                            if (!coverUrl) {
+                                    coverUrl = `https://ndlsearch.ndl.go.jp/thumbnail/${isbnInput}.jpg`;
+                                }
+
+bookData = {
+    title: summary.title || "",
+    author: summary.author || "",
+    coverUrl: coverUrl
+};
                         }
                     }
                 }
