@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>読書記録アプリ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .star-input i { cursor: pointer; transition: color 0.2s; }
+        .star-input:hover i { color: #d1d5db; }
+        .star-input i:hover, .star-input i:hover ~ i { color: #f59e0b; }
+        .star-input { display: flex; flex-direction: row-reverse; justify-content: flex-end; }
+        
+        /* 読み込み中のスピナーアニメーション */
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4f46e5;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen text-gray-800 pb-12">
+    <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 text-white w-8 h-8 rounded flex items-center justify-center font-bold text-lg shadow-sm">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <h1 class="font-bold text-xl tracking-tight text-gray-900">読書記録</h1>
+                <!-- クラウド同期状態のバッジ -->
+                <span id="sync-status" class="hidden md:inline-flex items-center gap-1 bg-green-50 text-green-600 text-[10px] px-2 py-1 rounded-full border border-green-200 font-bold ml-2">
+                    <i class="fas fa-cloud-check"></i> 同期中
+                </span>
+            </div>
+            <button id="add-book-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 shadow-sm">
+                <i class="fas fa-plus"></i><span class="hidden sm:inline">新しい本を記録</span>
+            </button>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 mt-8">
+        <!-- 初期ロード中の表示 -->
+        <div id="loading-screen" class="flex flex-col items-center justify-center py-20">
+            <div class="loader mb-4"></div>
+            <p class="text-gray-500 font-medium">クラウドからデータを読み込んでいます...</p>
+        </div>
+
+        <div id="app-content" class="hidden">
+            <!-- ダッシュボード統計 -->
+            <div class="grid grid-cols-3 gap-4 mb-8">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
+                    <div class="bg-indigo-100 text-indigo-600 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-lg sm:text-xl">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs sm:text-sm text-gray-500 font-medium">合計</p>
+                        <p class="text-xl sm:text-2xl font-bold text-gray-800" id="total-books">0</p>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
+                    <div class="bg-green-100 text-green-600 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-lg sm:text-xl">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs sm:text-sm text-gray-500 font-medium">読了</p>
+                        <p class="text-xl sm:text-2xl font-bold text-gray-800" id="read-books">0</p>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
+                    <div class="bg-yellow-100 text-yellow-600 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-lg sm:text-xl">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs sm:text-sm text-gray-500 font-medium">積読</p>
+                        <p class="text-xl sm:text-2xl font-bold text-gray-800" id="unread-books">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- フィルター -->
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-lg font-bold text-gray-800">本棚</h2>
+                <select id="filter-status" class="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium cursor-pointer text-sm sm:text-base">
+                    <option value="all">すべて表示</option>
+                    <option value="read">読了のみ</option>
+                    <option value="reading">読書中のみ</option>
+                    <option value="unread">積読のみ</option>
+                </select>
+            </div>
+
+            <!-- 本のグリッド表示 -->
+            <div id="book-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+                <!-- JavaScriptでここに本が挿入されます -->
+            </div>
+        </div>
+    </main>
+
+    <!-- 記録追加・編集モーダル -->
+    <div id="book-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-2 sm:p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[95vh] flex flex-col overflow-hidden">
+            <div class="p-4 sm:p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-2xl">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-800" id="modal-title">新しい本を記録</h3>
+                <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600 transition p-2">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-4 sm:p-6 overflow-y-auto">
+                <form id="book-form" class="space-y-5">
+                    <input type="hidden" id="book-id">
+                    
+                    <!-- ISBN入力エリア -->
+                    <div class="bg-indigo-50 p-3 sm:p-4 rounded-lg border border-indigo-100">
+                        <label for="book-isbn" class="block text-sm font-bold text-indigo-900 mb-2">
+                            <i class="fas fa-barcode mr-1"></i> ISBNで自動入力
+                        </label>
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <input type="text" id="book-isbn" placeholder="例: 9784062779391" class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                            <button type="button" id="fetch-info-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition whitespace-nowrap flex items-center justify-center gap-2">
+                                <i class="fas fa-search"></i> 検索
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2" id="isbn-message">13桁または10桁のISBNを入力して情報を取得できます。</p>
+                    </div>
+                    
+                    <div>
+                        <label for="book-title" class="block text-sm font-medium text-gray-700 mb-1">タイトル <span class="text-red-500">*</span></label>
+                        <input type="text" id="book-title" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                    </div>
+                    
+                    <div>
+                        <label for="book-author" class="block text-sm font-medium text-gray-700 mb-1">著者</label>
+                        <input type="text" id="book-author" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="book-status" class="block text-sm font-medium text-gray-700 mb-1">ステータス</label>
+                            <select id="book-status" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none transition bg-white cursor-pointer">
+                                <option value="read">読了</option>
+                                <option value="reading">読書中</option>
+                                <option value="unread">購入済(積読)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="book-date" class="block text-sm font-medium text-gray-700 mb-1">日付</label>
+                            <input type="date" id="book-date" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none transition cursor-pointer">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="book-cover" class="block text-sm font-medium text-gray-700 mb-1">表紙画像 (URL)</label>
+                        <input type="url" id="book-cover" placeholder="https://..." class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none transition text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">評価</label>
+                        <div class="star-input text-2xl text-gray-300" id="rating-stars">
+                            <i class="fas fa-star" data-value="5"></i>
+                            <i class="fas fa-star" data-value="4"></i>
+                            <i class="fas fa-star" data-value="3"></i>
+                            <i class="fas fa-star" data-value="2"></i>
+                            <i class="fas fa-star" data-value="1"></i>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="book-review" class="block text-sm font-medium text-gray-700 mb-1">感想・メモ</label>
+                        <textarea id="book-review" rows="3" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none transition resize-none"></textarea>
+                    </div>
+
+                    <!-- 写真追加エリア -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">思い出の写真 (最大10枚)</label>
+                        <div class="flex items-center gap-2">
+                            <label for="book-photos" class="cursor-pointer bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition text-sm flex items-center gap-2 shadow-sm">
+                                <i class="fas fa-camera"></i> 選択する
+                            </label>
+                            <input type="file" id="book-photos" multiple accept="image/*" class="hidden">
+                            <span id="photo-count" class="text-xs text-gray-500 font-medium">0 / 10枚</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mt-1">※自動的に圧縮してクラウドへ保存されます。</p>
+                        <div id="photo-preview" class="flex flex-wrap gap-2 mt-3 empty:hidden"></div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="px-6 pb-2">
+                <p id="save-error-message" class="text-sm text-red-500 font-medium bg-red-50 p-2 rounded hidden"></p>
+            </div>
+            
+            <div class="p-4 border-t bg-gray-50 rounded-b-2xl flex justify-end gap-3">
+                <button type="button" id="cancel-btn" class="px-5 py-2 rounded-lg font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition">キャンセル</button>
+                <button type="submit" form="book-form" id="save-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium transition shadow-sm flex items-center gap-2">
+                    保存する
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 詳細表示モーダル -->
+    <div id="detail-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-2 sm:p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[95vh] overflow-hidden flex flex-col md:flex-row relative">
+            <button id="close-detail-btn-mobile" class="absolute top-2 right-2 md:hidden z-10 bg-white/80 backdrop-blur text-gray-700 rounded-full w-8 h-8 shadow flex items-center justify-center">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="md:w-1/3 bg-gray-100 flex items-center justify-center p-4 sm:p-6">
+                <img id="detail-cover" src="" alt="Cover" class="w-32 sm:w-48 md:w-full object-cover rounded shadow-md max-h-48 md:max-h-full">
+            </div>
+            
+            <div class="p-4 sm:p-6 md:w-2/3 flex flex-col overflow-y-auto">
+                <div class="flex justify-between items-start mb-2">
+                    <div id="detail-status" class="mb-2"></div>
+                    <button id="close-detail-btn" class="hidden md:flex text-gray-400 hover:text-gray-600 transition p-1">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <h2 id="detail-title" class="text-xl sm:text-2xl font-bold text-gray-900 mb-1 leading-tight"></h2>
+                <p id="detail-author" class="text-sm sm:text-base text-gray-600 font-medium mb-4"></p>
+                
+                <div class="flex flex-wrap items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+                    <div id="detail-rating" class="flex gap-1 text-sm"></div>
+                    <span id="detail-date" class="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded whitespace-nowrap"></span>
+                </div>
+                
+                <p id="detail-isbn" class="text-xs text-gray-400 mb-4 font-mono"></p>
+
+                <div class="flex-grow">
+                    <h4 class="text-xs sm:text-sm font-bold text-gray-700 border-b pb-1 mb-2">感想・メモ</h4>
+                    <p id="detail-review" class="text-gray-700 whitespace-pre-wrap leading-relaxed text-sm"></p>
+                </div>
+                
+                <!-- 写真ギャラリー表示エリア -->
+                <div id="detail-photos-container" class="mt-6 hidden">
+                    <h4 class="text-xs sm:text-sm font-bold text-gray-700 border-b pb-1 mb-3 flex items-center gap-2">
+                        <i class="fas fa-images text-indigo-500"></i> 思い出の写真
+                    </h4>
+                    <div id="detail-photos" class="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3"></div>
+                </div>
+                
+                <div class="mt-6 sm:mt-8 pt-4 border-t flex justify-between gap-3">
+                    <button id="delete-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition flex items-center justify-center gap-2 shadow-sm text-sm w-1/3 md:w-auto">
+                        <i class="fas fa-trash"></i> <span class="hidden sm:inline">削除</span>
+                    </button>
+                    <button id="edit-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition flex items-center justify-center gap-2 shadow-sm text-sm flex-1 md:flex-none">
+                        <i class="fas fa-edit"></i> 編集
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase連携処理 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // 環境変数からの設定読み込み（Canvas環境用）
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'reading-app-local';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            // ローカルテスト用のダミー設定
+            apiKey: "dummy", authDomain: "dummy.firebaseapp.com", projectId: "dummy"
+        };
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let app, auth, db, userId;
+        
+        // --- 状態管理 ---
+        let books = [];
+        let currentRating = 0;
+        let currentFilter = 'all';
+        let deleteConfirmTimeout = null;
+        let currentPhotos = [];
+
+        // --- DOM要素 ---
+        const bookGrid = document.getElementById('book-grid');
+        const bookModal = document.getElementById('book-modal');
+        const detailModal = document.getElementById('detail-modal');
+        const bookForm = document.getElementById('book-form');
+
+        async function init() {
+            setupEventListeners();
+            
+            try {
+                // Firebaseの初期化
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                // 認証処理
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                
+                userId = auth.currentUser.uid;
+                
+                // Firestoreからのリアルタイム同期開始
+                const booksRef = collection(db, 'artifacts', appId, 'users', userId, 'books');
+                onSnapshot(booksRef, (snapshot) => {
+                    books = [];
+                    snapshot.forEach((doc) => {
+                        books.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    // 日付で降順ソート
+                    books.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+                    
+                    document.getElementById('loading-screen').classList.add('hidden');
+                    document.getElementById('app-content').classList.remove('hidden');
+                    
+                    updateStats();
+                    renderBooks();
+                }, (error) => {
+                    console.error("同期エラー:", error);
+                    alert('データの同期に失敗しました。再読み込みしてください。');
+                });
+
+            } catch (error) {
+                console.error("Firebase Initialization Error:", error);
+                document.getElementById('loading-screen').innerHTML = '<p class="text-red-500 mt-4">システムの初期化に失敗しました。</p>';
+            }
+        }
+
+        function setupEventListeners() {
+            document.getElementById('add-book-btn').addEventListener('click', openAddModal);
+            document.getElementById('close-modal-btn').addEventListener('click', closeBookModal);
+            document.getElementById('cancel-btn').addEventListener('click', closeBookModal);
+            document.getElementById('close-detail-btn').addEventListener('click', closeDetailModal);
+            document.getElementById('close-detail-btn-mobile').addEventListener('click', closeDetailModal);
+            
+            bookForm.addEventListener('submit', saveBook);
+            document.getElementById('fetch-info-btn').addEventListener('click', fetchBookInfo);
+            
+            document.getElementById('filter-status').addEventListener('change', (e) => {
+                currentFilter = e.target.value;
+                renderBooks();
+            });
+
+            bookModal.addEventListener('click', (e) => { if (e.target === bookModal) closeBookModal(); });
+            detailModal.addEventListener('click', (e) => { if (e.target === detailModal) closeDetailModal(); });
+
+            const stars = document.querySelectorAll('#rating-stars i');
+            stars.forEach(star => {
+                star.addEventListener('click', (e) => setRating(parseInt(e.target.dataset.value)));
+            });
+
+            document.getElementById('book-photos').addEventListener('change', handlePhotoSelection);
+            document.getElementById('edit-btn').addEventListener('click', () => {
+                const id = document.getElementById('edit-btn').dataset.id;
+                openEditModal(id);
+            });
+            document.getElementById('delete-btn').addEventListener('click', () => {
+                const id = document.getElementById('delete-btn').dataset.id;
+                handleDeleteClick(id);
+            });
+        }
+
+        async function handlePhotoSelection(e) {
+            const files = Array.from(e.target.files);
+            if (!files.length) return;
+            e.target.value = '';
+
+            const remainingSlots = 10 - currentPhotos.length;
+            const filesToProcess = files.slice(0, remainingSlots);
+            
+            const btn = document.querySelector('label[for="book-photos"]');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 圧縮中...';
+            btn.classList.add('pointer-events-none', 'opacity-70');
+
+            for (const file of filesToProcess) {
+                try {
+                    const compressedBase64 = await compressPhoto(file);
+                    currentPhotos.push(compressedBase64);
+                } catch (err) {
+                    console.error('画像圧縮エラー', err);
+                }
+            }
+            
+            btn.innerHTML = originalHtml;
+            btn.classList.remove('pointer-events-none', 'opacity-70');
+            updatePhotoPreview();
+        }
+
+        function compressPhoto(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        // クラウドの容量制限(1MB/ドキュメント)に配慮し、強めにリサイズ・圧縮
+                        const MAX_SIZE = 600; 
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > MAX_SIZE || height > MAX_SIZE) {
+                            if (width > height) {
+                                height = Math.round(height * (MAX_SIZE / width));
+                                width = MAX_SIZE;
+                            } else {
+                                width = Math.round(width * (MAX_SIZE / height));
+                                height = MAX_SIZE;
+                            }
+                        }
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        // 品質を40%に落としデータ量を大幅削減
+                        resolve(canvas.toDataURL('image/jpeg', 0.4)); 
+                    };
+                    img.onerror = reject;
+                };
+                reader.onerror = reject;
+            });
+        }
+
+        function updatePhotoPreview() {
+            const previewContainer = document.getElementById('photo-preview');
+            const countDisplay = document.getElementById('photo-count');
+            
+            previewContainer.innerHTML = '';
+            countDisplay.textContent = `${currentPhotos.length} / 10枚`;
+            
+            if (currentPhotos.length >= 10) countDisplay.classList.add('text-red-500');
+            else countDisplay.classList.remove('text-red-500');
+
+            currentPhotos.forEach((photoData, index) => {
+                const div = document.createElement('div');
+                div.className = 'relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden shadow-sm border border-gray-200 group';
+                
+                const img = document.createElement('img');
+                img.src = photoData;
+                img.className = 'w-full h-full object-cover';
+                
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'absolute top-1 right-1 bg-black bg-opacity-70 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition shadow-sm';
+                btn.innerHTML = '<i class="fas fa-times"></i>';
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    currentPhotos.splice(index, 1);
+                    updatePhotoPreview();
+                };
+                
+                div.appendChild(img);
+                div.appendChild(btn);
+                previewContainer.appendChild(div);
+            });
+        }
+
+        function openAddModal() {
+            bookForm.reset();
+            document.getElementById('book-id').value = '';
+            document.getElementById('book-isbn').value = '';
+            document.getElementById('save-error-message').classList.add('hidden');
+            
+            resetIsbnMessage();
+            setRating(0);
+            currentPhotos = [];
+            updatePhotoPreview();
+            
+            document.getElementById('book-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('modal-title').textContent = '新しい本を記録';
+            
+            bookModal.classList.remove('hidden');
+            bookModal.classList.add('flex');
+        }
+
+        function openEditModal(id) {
+            const book = books.find(b => b.id === id);
+            if (!book) return;
+            
+            document.getElementById('save-error-message').classList.add('hidden');
+            document.getElementById('book-id').value = book.id;
+            document.getElementById('book-isbn').value = book.isbn || '';
+            document.getElementById('book-title').value = book.title;
+            document.getElementById('book-author').value = book.author || '';
+            document.getElementById('book-status').value = book.status;
+            document.getElementById('book-date').value = book.date || '';
+            document.getElementById('book-cover').value = book.coverUrl || '';
+            document.getElementById('book-review').value = book.review || '';
+            setRating(book.rating || 0);
+            
+            currentPhotos = book.photos ? [...book.photos] : [];
+            updatePhotoPreview();
+
+            resetIsbnMessage();
+            document.getElementById('modal-title').textContent = '記録を編集';
+            
+            closeDetailModal();
+            bookModal.classList.remove('hidden');
+            bookModal.classList.add('flex');
+        }
+
+        function closeBookModal() {
+            bookModal.classList.add('hidden');
+            bookModal.classList.remove('flex');
+        }
+
+        async function fetchBookInfo() {
+            const isbnInput = document.getElementById('book-isbn').value.replace(/-/g, '').trim();
+            const messageEl = document.getElementById('isbn-message');
+            const btn = document.getElementById('fetch-info-btn');
+            
+            if (!isbnInput) {
+                messageEl.textContent = 'ISBNを入力してください。';
+                messageEl.className = 'text-xs text-red-500 mt-2 font-medium';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            messageEl.textContent = '検索中...';
+            messageEl.className = 'text-xs text-blue-500 mt-2';
+
+            try {
+                let bookData = null;
+                const openbdRes = await fetch(`https://api.openbd.jp/v1/get?isbn=${isbnInput}`);
+                if (openbdRes.ok) {
+                    const data = await openbdRes.json();
+                    if (data && data.length > 0 && data[0] != null) {
+                        const summary = data[0].summary;
+                        bookData = { title: summary.title, author: summary.author, coverUrl: summary.cover || '' };
+                    }
+                }
+
+                if (!bookData) {
+                    const googleRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbnInput}`);
+                    if (googleRes.ok) {
+                        const data = await googleRes.json();
+                        if (data.items && data.items.length > 0) {
+                            const volumeInfo = data.items[0].volumeInfo;
+                            bookData = {
+                                title: volumeInfo.title,
+                                author: volumeInfo.authors ? volumeInfo.authors.join(', ') : '',
+                                coverUrl: volumeInfo.imageLinks ? (volumeInfo.imageLinks.thumbnail || volumeInfo.imageLinks.smallThumbnail) : ''
+                            };
+                            if (bookData.coverUrl && bookData.coverUrl.startsWith('http:')) {
+                                bookData.coverUrl = bookData.coverUrl.replace('http:', 'https:');
+                            }
+                        }
+                    }
+                }
+
+                if (bookData) {
+                    document.getElementById('book-title').value = bookData.title || '';
+                    document.getElementById('book-author').value = bookData.author || '';
+                    document.getElementById('book-cover').value = bookData.coverUrl || '';
+                    messageEl.textContent = '取得成功！';
+                    messageEl.className = 'text-xs text-green-600 mt-2 font-bold';
+                } else {
+                    messageEl.textContent = '見つかりませんでした。手動で入力してください。';
+                    messageEl.className = 'text-xs text-yellow-600 mt-2 font-medium';
+                }
+            } catch (error) {
+                messageEl.textContent = '通信エラーが発生しました。';
+                messageEl.className = 'text-xs text-red-500 mt-2 font-medium';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-search"></i> 検索';
+            }
+        }
+
+        function resetIsbnMessage() {
+            const messageEl = document.getElementById('isbn-message');
+            messageEl.textContent = '13桁または10桁のISBNを入力して情報を取得できます。';
+            messageEl.className = 'text-xs text-gray-500 mt-2';
+        }
+
+        async function saveBook(e) {
+            e.preventDefault();
+            if (!userId) return;
+
+            const errorMsg = document.getElementById('save-error-message');
+            errorMsg.classList.add('hidden');
+            
+            const btn = document.getElementById('save-btn');
+            const originalBtnHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 保存中...';
+            btn.disabled = true;
+
+            const id = document.getElementById('book-id').value || crypto.randomUUID();
+            const bookData = {
+                isbn: document.getElementById('book-isbn').value.replace(/-/g, ''),
+                title: document.getElementById('book-title').value,
+                author: document.getElementById('book-author').value,
+                status: document.getElementById('book-status').value,
+                date: document.getElementById('book-date').value,
+                coverUrl: document.getElementById('book-cover').value,
+                review: document.getElementById('book-review').value,
+                rating: currentRating,
+                photos: currentPhotos // Base64文字列の配列
+            };
+
+            try {
+                // Firestoreへ保存
+                const docRef = doc(db, 'artifacts', appId, 'users', userId, 'books', id);
+                await setDoc(docRef, bookData);
+                closeBookModal();
+            } catch (err) {
+                console.error("保存エラー:", err);
+                errorMsg.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> クラウド保存に失敗しました。写真のサイズが大きすぎる可能性があります。枚数を減らして再試行してください。';
+                errorMsg.classList.remove('hidden');
+            } finally {
+                btn.innerHTML = originalBtnHtml;
+                btn.disabled = false;
+            }
+        }
+
+        async function handleDeleteClick(id) {
+            if (!userId) return;
+            const btn = document.getElementById('delete-btn');
+            
+            if (btn.dataset.confirm === 'true') {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'users', userId, 'books', id);
+                    await deleteDoc(docRef);
+                    closeDetailModal();
+                } catch (e) {
+                    console.error("削除エラー:", e);
+                }
+            } else {
+                btn.dataset.confirm = 'true';
+                btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 本当に削除？';
+                btn.classList.replace('bg-red-500', 'bg-red-700');
+                
+                clearTimeout(deleteConfirmTimeout);
+                deleteConfirmTimeout = setTimeout(() => {
+                    btn.dataset.confirm = 'false';
+                    btn.innerHTML = '<i class="fas fa-trash"></i> <span class="hidden sm:inline">削除</span>';
+                    btn.classList.replace('bg-red-700', 'bg-red-500');
+                }, 3000);
+            }
+        }
+
+        // `renderBooks`内の `onclick` 属性から呼び出せるようにグローバル関数として登録
+        window.openDetailFromGrid = function(id) {
+            const book = books.find(b => b.id === id);
+            if (!book) return;
+
+            document.getElementById('detail-cover').src = book.coverUrl || generatePlaceholder(book.title);
+            document.getElementById('detail-title').textContent = book.title;
+            document.getElementById('detail-author').textContent = book.author || '著者不明';
+            document.getElementById('detail-status').innerHTML = getStatusBadge(book.status);
+            
+            const dateStr = book.date ? new Date(book.date).toLocaleDateString() : '日付未設定';
+            document.getElementById('detail-date').innerHTML = `<i class="far fa-calendar-alt mr-1"></i> ${dateStr}`;
+            
+            document.getElementById('detail-isbn').textContent = book.isbn ? `ISBN: ${book.isbn}` : '';
+            
+            if (book.review) {
+                document.getElementById('detail-review').textContent = book.review;
+                document.getElementById('detail-review').classList.remove('italic', 'text-gray-400');
+            } else {
+                document.getElementById('detail-review').textContent = '感想はまだ記録されていません。';
+                document.getElementById('detail-review').classList.add('italic', 'text-gray-400');
+            }
+            
+            const starsHtml = Array(5).fill(0).map((_, i) => 
+                `<i class="fas fa-star ${i < (book.rating || 0) ? 'text-yellow-400' : 'text-gray-300'}"></i>`
+            ).join('');
+            document.getElementById('detail-rating').innerHTML = starsHtml;
+
+            const photosContainer = document.getElementById('detail-photos-container');
+            const photosGrid = document.getElementById('detail-photos');
+            
+            if (book.photos && book.photos.length > 0) {
+                photosContainer.classList.remove('hidden');
+                photosGrid.innerHTML = '';
+                book.photos.forEach(photoBase64 => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'w-full h-24 sm:h-32 bg-gray-100 rounded-lg overflow-hidden cursor-pointer shadow-sm border border-gray-100 group';
+                    wrapper.onclick = () => {
+                        const newTab = window.open();
+                        newTab.document.body.innerHTML = `<body style="margin:0; background:#000; display:flex; justify-content:center; align-items:center; height:100vh;"><img src="${photoBase64}" style="max-width:100%; max-height:100vh; object-fit:contain;"></body>`;
+                        newTab.document.title = '思い出の写真';
+                    };
+                    
+                    const img = document.createElement('img');
+                    img.src = photoBase64;
+                    img.className = 'w-full h-full object-cover group-hover:scale-105 transition duration-300';
+                    
+                    wrapper.appendChild(img);
+                    photosGrid.appendChild(wrapper);
+                });
+            } else {
+                photosContainer.classList.add('hidden');
+            }
+
+            // データIDをボタンに持たせる
+            document.getElementById('edit-btn').dataset.id = book.id;
+            
+            const deleteBtn = document.getElementById('delete-btn');
+            deleteBtn.dataset.id = book.id;
+            deleteBtn.dataset.confirm = 'false';
+            deleteBtn.innerHTML = '<i class="fas fa-trash"></i> <span class="hidden sm:inline">削除</span>';
+            if (deleteBtn.classList.contains('bg-red-700')) {
+                deleteBtn.classList.replace('bg-red-700', 'bg-red-500');
+            }
+
+            detailModal.classList.remove('hidden');
+            detailModal.classList.add('flex');
+        }
+
+        function closeDetailModal() {
+            clearTimeout(deleteConfirmTimeout);
+            detailModal.classList.add('hidden');
+            detailModal.classList.remove('flex');
+        }
+
+        function renderBooks() {
+            bookGrid.innerHTML = '';
+            
+            let filtered = books;
+            if (currentFilter !== 'all') {
+                filtered = books.filter(b => b.status === currentFilter);
+            }
+
+            if (filtered.length === 0) {
+                bookGrid.innerHTML = `
+                    <div class="col-span-full text-center py-12 sm:py-16">
+                        <div class="text-gray-300 mb-4 text-4xl sm:text-5xl"><i class="fas fa-books"></i></div>
+                        <p class="text-gray-500 font-medium text-sm sm:text-base">条件に一致する本がありません。</p>
+                        <p class="text-gray-400 text-xs sm:text-sm mt-1">「新しい本を記録」から追加してください。</p>
+                    </div>`;
+                return;
+            }
+
+            filtered.forEach(book => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl shadow-sm hover:shadow-md transition cursor-pointer overflow-hidden flex flex-col h-full border border-gray-100 group hover:-translate-y-1 duration-200';
+                card.onclick = () => window.openDetailFromGrid(book.id);
+
+                const coverUrl = book.coverUrl || generatePlaceholder(book.title);
+                const stars = Array(5).fill(0).map((_, i) => 
+                    `<i class="fas fa-star text-[8px] sm:text-[10px] ${i < (book.rating || 0) ? 'text-yellow-400' : 'text-gray-300'}"></i>`
+                ).join('');
+
+                card.innerHTML = `
+                    <div class="h-36 sm:h-48 w-full bg-gray-100 overflow-hidden relative">
+                        <img src="${coverUrl}" alt="${book.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='${generatePlaceholder(book.title)}'">
+                        <div class="absolute top-2 right-2">
+                            ${getStatusBadge(book.status)}
+                        </div>
+                    </div>
+                    <div class="p-2 sm:p-3 flex flex-col flex-grow">
+                        <h3 class="font-bold text-gray-800 text-xs sm:text-sm line-clamp-2 leading-tight mb-1" title="${book.title}">${book.title}</h3>
+                        <p class="text-[10px] sm:text-[11px] text-gray-500 mb-2 truncate">${book.author || '著者不明'}</p>
+                        <div class="mt-auto pt-2 flex justify-between items-center border-t border-gray-50">
+                            <div class="flex gap-[1px] sm:gap-[2px]">${stars}</div>
+                        </div>
+                    </div>
+                `;
+                bookGrid.appendChild(card);
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('total-books').textContent = books.length;
+            document.getElementById('read-books').textContent = books.filter(b => b.status === 'read').length;
+            document.getElementById('unread-books').textContent = books.filter(b => b.status === 'unread').length;
+        }
+
+        function setRating(rating) {
+            currentRating = rating;
+            const stars = document.querySelectorAll('#rating-stars i');
+            stars.forEach(star => {
+                const starVal = parseInt(star.dataset.value);
+                if (starVal <= rating) {
+                    star.classList.add('text-yellow-400');
+                    star.classList.remove('text-gray-300');
+                } else {
+                    star.classList.remove('text-yellow-400');
+                    star.classList.add('text-gray-300');
+                }
+            });
+        }
+
+        function getStatusBadge(status) {
+            switch(status) {
+                case 'read': return '<span class="bg-green-500 text-white text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 sm:py-1 rounded shadow-sm font-bold tracking-wide">読了</span>';
+                case 'reading': return '<span class="bg-blue-500 text-white text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 sm:py-1 rounded shadow-sm font-bold tracking-wide">読書中</span>';
+                case 'unread': return '<span class="bg-yellow-500 text-white text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 sm:py-1 rounded shadow-sm font-bold tracking-wide">積読</span>';
+                default: return '';
+            }
+        }
+
+        function generatePlaceholder(title) {
+            const colors = ['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#10b981', '#06b6d4', '#3b82f6', '#6366f1', '#8b5cf6', '#d946ef', '#f43f5e'];
+            const color = colors[title.length % colors.length];
+            const text = encodeURIComponent(title.substring(0, 2));
+            return `https://placehold.co/400x600/${color.replace('#','')}/ffffff?text=${text}`;
+        }
+
+        // アプリ起動
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
