@@ -32,11 +32,11 @@
                     <i class="fas fa-book-open"></i>
                 </div>
                 <h1 class="font-bold text-xl tracking-tight text-gray-900">読書記録</h1>
-                <span class="inline-flex items-center gap-1 bg-indigo-50 text-indigo-600 text-[10px] px-2 py-1 rounded-full border border-indigo-200 font-bold ml-2">
-                    <i class="fas fa-hdd"></i> ローカル保存
+                <span class="inline-flex items-center gap-1 bg-green-50 text-green-600 text-[10px] px-2 py-1 rounded-full border border-green-200 font-bold ml-2">
+                    <i class="fas fa-check-circle"></i> ローカル保存版
                 </span>
             </div>
-            <button id="add-book-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 shadow-sm">
+            <button id="add-book-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 shadow-sm cursor-pointer">
                 <i class="fas fa-plus"></i><span class="hidden sm:inline">新しい本を記録</span>
             </button>
         </div>
@@ -97,13 +97,13 @@
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[95vh] flex flex-col overflow-hidden">
             <div class="p-4 sm:p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-2xl">
                 <h3 class="text-lg sm:text-xl font-bold text-gray-800" id="modal-title">新しい本を記録</h3>
-                <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600 transition p-2">
+                <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600 transition p-2 cursor-pointer">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
             
-            <div class="p-4 sm:p-6 overflow-y-auto">
-                <form id="book-form" class="space-y-5">
+            <div class="p-4 sm:p-6 overflow-y-auto flex-grow">
+                <div id="book-form" class="space-y-5">
                     <input type="hidden" id="book-id">
                     
                     <div class="bg-indigo-50 p-3 sm:p-4 rounded-lg border border-indigo-100">
@@ -112,7 +112,7 @@
                         </label>
                         <div class="flex flex-col sm:flex-row gap-2">
                             <input type="text" id="book-isbn" placeholder="例: 9784062779391" class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none transition bg-white">
-                            <button type="button" id="fetch-info-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition whitespace-nowrap flex items-center justify-center gap-2">
+                            <button type="button" id="fetch-info-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition whitespace-nowrap flex items-center justify-center gap-2 cursor-pointer">
                                 <i class="fas fa-search"></i> 検索
                             </button>
                         </div>
@@ -121,7 +121,7 @@
                     
                     <div>
                         <label for="book-title" class="block text-sm font-medium text-gray-700 mb-1">タイトル <span class="text-red-500">*</span></label>
-                        <input type="text" id="book-title" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                        <input type="text" id="book-title" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none transition">
                     </div>
                     
                     <div>
@@ -176,7 +176,7 @@
                         </div>
                         <div id="photo-preview" class="flex flex-wrap gap-2 mt-3 empty:hidden"></div>
                     </div>
-                </form>
+                </div>
             </div>
             
             <div class="px-6 pb-2">
@@ -184,8 +184,8 @@
             </div>
             
             <div class="p-4 border-t bg-gray-50 rounded-b-2xl flex justify-end gap-3">
-                <button type="button" id="cancel-btn" class="px-5 py-2 rounded-lg font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition">キャンセル</button>
-                <button type="submit" form="book-form" id="save-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium transition shadow-sm flex items-center gap-2">
+                <button type="button" id="cancel-btn" class="px-5 py-2 rounded-lg font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition cursor-pointer">キャンセル</button>
+                <button type="button" id="save-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium transition shadow-sm flex items-center gap-2 cursor-pointer">
                     保存する
                 </button>
             </div>
@@ -194,7 +194,7 @@
 
     <div id="detail-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-2 sm:p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[95vh] overflow-hidden flex flex-col md:flex-row relative">
-            <button id="close-detail-btn-mobile" class="absolute top-2 right-2 md:hidden z-10 bg-white/80 backdrop-blur text-gray-700 rounded-full w-8 h-8 shadow flex items-center justify-center">
+            <button id="close-detail-btn-mobile" class="absolute top-2 right-2 md:hidden z-10 bg-white/80 backdrop-blur text-gray-700 rounded-full w-8 h-8 shadow flex items-center justify-center cursor-pointer">
                 <i class="fas fa-times"></i>
             </button>
             
@@ -205,7 +205,7 @@
             <div class="p-4 sm:p-6 md:w-2/3 flex flex-col overflow-y-auto">
                 <div class="flex justify-between items-start mb-2">
                     <div id="detail-status" class="mb-2"></div>
-                    <button id="close-detail-btn" class="hidden md:flex text-gray-400 hover:text-gray-600 transition p-1">
+                    <button id="close-detail-btn" class="hidden md:flex text-gray-400 hover:text-gray-600 transition p-1 cursor-pointer">
                         <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
@@ -233,10 +233,10 @@
                 </div>
                 
                 <div class="mt-6 sm:mt-8 pt-4 border-t flex justify-between gap-3">
-                    <button id="delete-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition flex items-center justify-center gap-2 shadow-sm text-sm w-1/3 md:w-auto">
+                    <button id="delete-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition flex items-center justify-center gap-2 shadow-sm text-sm w-1/3 md:w-auto cursor-pointer">
                         <i class="fas fa-trash"></i> <span class="hidden sm:inline">削除</span>
                     </button>
-                    <button id="edit-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition flex items-center justify-center gap-2 shadow-sm text-sm flex-1 md:flex-none">
+                    <button id="edit-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition flex items-center justify-center gap-2 shadow-sm text-sm flex-1 md:flex-none cursor-pointer">
                         <i class="fas fa-edit"></i> 編集
                     </button>
                 </div>
@@ -245,7 +245,7 @@
     </div>
 
     <script>
-        const STORAGE_KEY = 'reading_app_books_v1';
+        const STORAGE_KEY = 'reading_app_books_local_v2';
         let books = [];
         let currentRating = 0;
         let currentFilter = 'all';
@@ -255,7 +255,6 @@
         const bookGrid = document.getElementById('book-grid');
         const bookModal = document.getElementById('book-modal');
         const detailModal = document.getElementById('detail-modal');
-        const bookForm = document.getElementById('book-form');
 
         function init() {
             setupEventListeners();
@@ -288,7 +287,8 @@
             document.getElementById('close-detail-btn').addEventListener('click', closeDetailModal);
             document.getElementById('close-detail-btn-mobile').addEventListener('click', closeDetailModal);
             
-            bookForm.addEventListener('submit', saveBook);
+            // フォームの代わりに保存ボタンを直接クリック監視
+            document.getElementById('save-btn').addEventListener('click', saveBook);
             document.getElementById('fetch-info-btn').addEventListener('click', fetchBookInfo);
             
             document.getElementById('filter-status').addEventListener('change', (e) => {
@@ -341,7 +341,7 @@
                     const img = new Image();
                     img.src = event.target.result;
                     img.onload = () => {
-                        const MAX_SIZE = 500; 
+                        const MAX_SIZE = 400; 
                         let width = img.width, height = img.height;
                         if (width > MAX_SIZE || height > MAX_SIZE) {
                             if (width > height) { height = Math.round(height * (MAX_SIZE / width)); width = MAX_SIZE; }
@@ -373,7 +373,7 @@
                 img.className = 'w-full h-full object-cover';
                 const btn = document.createElement('button');
                 btn.type = 'button';
-                btn.className = 'absolute top-1 right-1 bg-black bg-opacity-70 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition shadow-sm';
+                btn.className = 'absolute top-1 right-1 bg-black bg-opacity-70 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition shadow-sm cursor-pointer';
                 btn.innerHTML = '<i class="fas fa-times"></i>';
                 btn.onclick = (e) => { e.stopPropagation(); currentPhotos.splice(index, 1); updatePhotoPreview(); };
                 div.appendChild(img); div.appendChild(btn);
@@ -382,9 +382,13 @@
         }
 
         function openAddModal() {
-            bookForm.reset();
             document.getElementById('book-id').value = '';
             document.getElementById('book-isbn').value = '';
+            document.getElementById('book-title').value = '';
+            document.getElementById('book-author').value = '';
+            document.getElementById('book-status').value = 'read';
+            document.getElementById('book-cover').value = '';
+            document.getElementById('book-review').value = '';
             document.getElementById('save-error-message').classList.add('hidden');
             resetIsbnMessage();
             setRating(0);
@@ -402,9 +406,9 @@
             document.getElementById('save-error-message').classList.add('hidden');
             document.getElementById('book-id').value = book.id;
             document.getElementById('book-isbn').value = book.isbn || '';
-            document.getElementById('book-title').value = book.title;
+            document.getElementById('book-title').value = book.title || '';
             document.getElementById('book-author').value = book.author || '';
-            document.getElementById('book-status').value = book.status;
+            document.getElementById('book-status').value = book.status || 'read';
             document.getElementById('book-date').value = book.date || '';
             document.getElementById('book-cover').value = book.coverUrl || '';
             document.getElementById('book-review').value = book.review || '';
@@ -483,11 +487,17 @@
             messageEl.className = 'text-xs text-gray-500 mt-2';
         }
 
-        function saveBook(e) {
-            e.preventDefault();
+        function saveBook() {
+            const titleInput = document.getElementById('book-title').value.trim();
             const errorMsg = document.getElementById('save-error-message');
             errorMsg.classList.add('hidden');
             
+            if (!titleInput) {
+                errorMsg.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> タイトルを入力してください。';
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
             const btn = document.getElementById('save-btn');
             const originalBtnHtml = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 保存中...';
@@ -497,12 +507,12 @@
             const bookData = {
                 id: id,
                 isbn: document.getElementById('book-isbn').value.replace(/-/g, ''),
-                title: document.getElementById('book-title').value,
-                author: document.getElementById('book-author').value,
+                title: titleInput,
+                author: document.getElementById('book-author').value.trim(),
                 status: document.getElementById('book-status').value,
                 date: document.getElementById('book-date').value,
-                coverUrl: document.getElementById('book-cover').value,
-                review: document.getElementById('book-review').value,
+                coverUrl: document.getElementById('book-cover').value.trim(),
+                review: document.getElementById('book-review').value.trim(),
                 rating: currentRating,
                 photos: currentPhotos
             };
