@@ -13,7 +13,6 @@
         .star-input i:hover, .star-input i:hover ~ i { color: #f59e0b; }
         .star-input { display: flex; flex-direction: row-reverse; justify-content: flex-end; }
         
-        /* 読み込み中のスピナーアニメーション */
         .loader {
             border: 3px solid #f3f3f3;
             border-top: 3px solid #4f46e5;
@@ -33,9 +32,8 @@
                     <i class="fas fa-book-open"></i>
                 </div>
                 <h1 class="font-bold text-xl tracking-tight text-gray-900">読書記録</h1>
-                <!-- クラウド同期状態のバッジ -->
-                <span id="sync-status" class="hidden md:inline-flex items-center gap-1 bg-green-50 text-green-600 text-[10px] px-2 py-1 rounded-full border border-green-200 font-bold ml-2">
-                    <i class="fas fa-cloud-check"></i> 同期中
+                <span class="inline-flex items-center gap-1 bg-indigo-50 text-indigo-600 text-[10px] px-2 py-1 rounded-full border border-indigo-200 font-bold ml-2">
+                    <i class="fas fa-hdd"></i> ローカル保存
                 </span>
             </div>
             <button id="add-book-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 shadow-sm">
@@ -45,14 +43,12 @@
     </nav>
 
     <main class="max-w-6xl mx-auto px-4 mt-8">
-        <!-- 初期ロード中の表示 -->
         <div id="loading-screen" class="flex flex-col items-center justify-center py-20">
             <div class="loader mb-4"></div>
-            <p class="text-gray-500 font-medium">クラウドからデータを読み込んでいます...</p>
+            <p class="text-gray-500 font-medium">データを読み込んでいます...</p>
         </div>
 
         <div id="app-content" class="hidden">
-            <!-- ダッシュボード統計 -->
             <div class="grid grid-cols-3 gap-4 mb-8">
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
                     <div class="bg-indigo-100 text-indigo-600 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-lg sm:text-xl">
@@ -83,7 +79,6 @@
                 </div>
             </div>
 
-            <!-- フィルター -->
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-lg font-bold text-gray-800">本棚</h2>
                 <select id="filter-status" class="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium cursor-pointer text-sm sm:text-base">
@@ -94,14 +89,10 @@
                 </select>
             </div>
 
-            <!-- 本のグリッド表示 -->
-            <div id="book-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
-                <!-- JavaScriptでここに本が挿入されます -->
-            </div>
+            <div id="book-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6"></div>
         </div>
     </main>
 
-    <!-- 記録追加・編集モーダル -->
     <div id="book-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-2 sm:p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[95vh] flex flex-col overflow-hidden">
             <div class="p-4 sm:p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-2xl">
@@ -115,13 +106,12 @@
                 <form id="book-form" class="space-y-5">
                     <input type="hidden" id="book-id">
                     
-                    <!-- ISBN入力エリア -->
                     <div class="bg-indigo-50 p-3 sm:p-4 rounded-lg border border-indigo-100">
                         <label for="book-isbn" class="block text-sm font-bold text-indigo-900 mb-2">
                             <i class="fas fa-barcode mr-1"></i> ISBNで自動入力
                         </label>
                         <div class="flex flex-col sm:flex-row gap-2">
-                            <input type="text" id="book-isbn" placeholder="例: 9784062779391" class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                            <input type="text" id="book-isbn" placeholder="例: 9784062779391" class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none transition bg-white">
                             <button type="button" id="fetch-info-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition whitespace-nowrap flex items-center justify-center gap-2">
                                 <i class="fas fa-search"></i> 検索
                             </button>
@@ -175,7 +165,6 @@
                         <textarea id="book-review" rows="3" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none transition resize-none"></textarea>
                     </div>
 
-                    <!-- 写真追加エリア -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">思い出の写真 (最大10枚)</label>
                         <div class="flex items-center gap-2">
@@ -185,7 +174,6 @@
                             <input type="file" id="book-photos" multiple accept="image/*" class="hidden">
                             <span id="photo-count" class="text-xs text-gray-500 font-medium">0 / 10枚</span>
                         </div>
-                        <p class="text-[11px] text-gray-400 mt-1">※自動的に圧縮してクラウドへ保存されます。</p>
                         <div id="photo-preview" class="flex flex-wrap gap-2 mt-3 empty:hidden"></div>
                     </div>
                 </form>
@@ -204,7 +192,6 @@
         </div>
     </div>
 
-    <!-- 詳細表示モーダル -->
     <div id="detail-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-2 sm:p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[95vh] overflow-hidden flex flex-col md:flex-row relative">
             <button id="close-detail-btn-mobile" class="absolute top-2 right-2 md:hidden z-10 bg-white/80 backdrop-blur text-gray-700 rounded-full w-8 h-8 shadow flex items-center justify-center">
@@ -238,7 +225,6 @@
                     <p id="detail-review" class="text-gray-700 whitespace-pre-wrap leading-relaxed text-sm"></p>
                 </div>
                 
-                <!-- 写真ギャラリー表示エリア -->
                 <div id="detail-photos-container" class="mt-6 hidden">
                     <h4 class="text-xs sm:text-sm font-bold text-gray-700 border-b pb-1 mb-3 flex items-center gap-2">
                         <i class="fas fa-images text-indigo-500"></i> 思い出の写真
@@ -258,77 +244,40 @@
         </div>
     </div>
 
-    <!-- Firebase連携処理 -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // 環境変数からの設定読み込み（Canvas環境用）
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'reading-app-local';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            // ローカルテスト用のダミー設定
-            apiKey: "dummy", authDomain: "dummy.firebaseapp.com", projectId: "dummy"
-        };
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-        let app, auth, db, userId;
-        
-        // --- 状態管理 ---
+    <script>
+        const STORAGE_KEY = 'reading_app_books_v1';
         let books = [];
         let currentRating = 0;
         let currentFilter = 'all';
         let deleteConfirmTimeout = null;
         let currentPhotos = [];
 
-        // --- DOM要素 ---
         const bookGrid = document.getElementById('book-grid');
         const bookModal = document.getElementById('book-modal');
         const detailModal = document.getElementById('detail-modal');
         const bookForm = document.getElementById('book-form');
 
-        async function init() {
+        function init() {
             setupEventListeners();
-            
             try {
-                // Firebaseの初期化
-                app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-
-                // 認証処理
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    books = JSON.parse(saved);
                 }
+                books.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
                 
-                userId = auth.currentUser.uid;
+                document.getElementById('loading-screen').classList.add('hidden');
+                document.getElementById('app-content').classList.remove('hidden');
                 
-                // Firestoreからのリアルタイム同期開始
-                const booksRef = collection(db, 'artifacts', appId, 'users', userId, 'books');
-                onSnapshot(booksRef, (snapshot) => {
-                    books = [];
-                    snapshot.forEach((doc) => {
-                        books.push({ id: doc.id, ...doc.data() });
-                    });
-                    
-                    // 日付で降順ソート
-                    books.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
-                    
-                    document.getElementById('loading-screen').classList.add('hidden');
-                    document.getElementById('app-content').classList.remove('hidden');
-                    
-                    updateStats();
-                    renderBooks();
-                }, (error) => {
-                    console.error("同期エラー:", error);
-                    alert('データの同期に失敗しました。再読み込みしてください。');
-                });
-
+                updateStats();
+                renderBooks();
             } catch (error) {
-                console.error("Firebase Initialization Error:", error);
-                document.getElementById('loading-screen').innerHTML = '<p class="text-red-500 mt-4">システムの初期化に失敗しました。</p>';
+                console.error("ロードエラー:", error);
+                books = [];
+                document.getElementById('loading-screen').classList.add('hidden');
+                document.getElementById('app-content').classList.remove('hidden');
+                updateStats();
+                renderBooks();
             }
         }
 
@@ -350,20 +299,13 @@
             bookModal.addEventListener('click', (e) => { if (e.target === bookModal) closeBookModal(); });
             detailModal.addEventListener('click', (e) => { if (e.target === detailModal) closeDetailModal(); });
 
-            const stars = document.querySelectorAll('#rating-stars i');
-            stars.forEach(star => {
+            document.querySelectorAll('#rating-stars i').forEach(star => {
                 star.addEventListener('click', (e) => setRating(parseInt(e.target.dataset.value)));
             });
 
             document.getElementById('book-photos').addEventListener('change', handlePhotoSelection);
-            document.getElementById('edit-btn').addEventListener('click', () => {
-                const id = document.getElementById('edit-btn').dataset.id;
-                openEditModal(id);
-            });
-            document.getElementById('delete-btn').addEventListener('click', () => {
-                const id = document.getElementById('delete-btn').dataset.id;
-                handleDeleteClick(id);
-            });
+            document.getElementById('edit-btn').addEventListener('click', () => openEditModal(document.getElementById('edit-btn').dataset.id));
+            document.getElementById('delete-btn').addEventListener('click', () => handleDeleteClick(document.getElementById('delete-btn').dataset.id));
         }
 
         async function handlePhotoSelection(e) {
@@ -383,9 +325,7 @@
                 try {
                     const compressedBase64 = await compressPhoto(file);
                     currentPhotos.push(compressedBase64);
-                } catch (err) {
-                    console.error('画像圧縮エラー', err);
-                }
+                } catch (err) { console.error(err); }
             }
             
             btn.innerHTML = originalHtml;
@@ -401,27 +341,16 @@
                     const img = new Image();
                     img.src = event.target.result;
                     img.onload = () => {
-                        // クラウドの容量制限(1MB/ドキュメント)に配慮し、強めにリサイズ・圧縮
-                        const MAX_SIZE = 600; 
-                        let width = img.width;
-                        let height = img.height;
-
+                        const MAX_SIZE = 500; 
+                        let width = img.width, height = img.height;
                         if (width > MAX_SIZE || height > MAX_SIZE) {
-                            if (width > height) {
-                                height = Math.round(height * (MAX_SIZE / width));
-                                width = MAX_SIZE;
-                            } else {
-                                width = Math.round(width * (MAX_SIZE / height));
-                                height = MAX_SIZE;
-                            }
+                            if (width > height) { height = Math.round(height * (MAX_SIZE / width)); width = MAX_SIZE; }
+                            else { width = Math.round(width * (MAX_SIZE / height)); height = MAX_SIZE; }
                         }
-
                         const canvas = document.createElement('canvas');
-                        canvas.width = width;
-                        canvas.height = height;
+                        canvas.width = width; canvas.height = height;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
-                        // 品質を40%に落としデータ量を大幅削減
                         resolve(canvas.toDataURL('image/jpeg', 0.4)); 
                     };
                     img.onerror = reject;
@@ -433,33 +362,21 @@
         function updatePhotoPreview() {
             const previewContainer = document.getElementById('photo-preview');
             const countDisplay = document.getElementById('photo-count');
-            
             previewContainer.innerHTML = '';
             countDisplay.textContent = `${currentPhotos.length} / 10枚`;
-            
-            if (currentPhotos.length >= 10) countDisplay.classList.add('text-red-500');
-            else countDisplay.classList.remove('text-red-500');
 
             currentPhotos.forEach((photoData, index) => {
                 const div = document.createElement('div');
                 div.className = 'relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden shadow-sm border border-gray-200 group';
-                
                 const img = document.createElement('img');
                 img.src = photoData;
                 img.className = 'w-full h-full object-cover';
-                
                 const btn = document.createElement('button');
                 btn.type = 'button';
                 btn.className = 'absolute top-1 right-1 bg-black bg-opacity-70 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition shadow-sm';
                 btn.innerHTML = '<i class="fas fa-times"></i>';
-                btn.onclick = (e) => {
-                    e.stopPropagation();
-                    currentPhotos.splice(index, 1);
-                    updatePhotoPreview();
-                };
-                
-                div.appendChild(img);
-                div.appendChild(btn);
+                btn.onclick = (e) => { e.stopPropagation(); currentPhotos.splice(index, 1); updatePhotoPreview(); };
+                div.appendChild(img); div.appendChild(btn);
                 previewContainer.appendChild(div);
             });
         }
@@ -469,15 +386,12 @@
             document.getElementById('book-id').value = '';
             document.getElementById('book-isbn').value = '';
             document.getElementById('save-error-message').classList.add('hidden');
-            
             resetIsbnMessage();
             setRating(0);
             currentPhotos = [];
             updatePhotoPreview();
-            
             document.getElementById('book-date').value = new Date().toISOString().split('T')[0];
             document.getElementById('modal-title').textContent = '新しい本を記録';
-            
             bookModal.classList.remove('hidden');
             bookModal.classList.add('flex');
         }
@@ -485,7 +399,6 @@
         function openEditModal(id) {
             const book = books.find(b => b.id === id);
             if (!book) return;
-            
             document.getElementById('save-error-message').classList.add('hidden');
             document.getElementById('book-id').value = book.id;
             document.getElementById('book-isbn').value = book.isbn || '';
@@ -496,13 +409,10 @@
             document.getElementById('book-cover').value = book.coverUrl || '';
             document.getElementById('book-review').value = book.review || '';
             setRating(book.rating || 0);
-            
             currentPhotos = book.photos ? [...book.photos] : [];
             updatePhotoPreview();
-
             resetIsbnMessage();
             document.getElementById('modal-title').textContent = '記録を編集';
-            
             closeDetailModal();
             bookModal.classList.remove('hidden');
             bookModal.classList.add('flex');
@@ -517,17 +427,11 @@
             const isbnInput = document.getElementById('book-isbn').value.replace(/-/g, '').trim();
             const messageEl = document.getElementById('isbn-message');
             const btn = document.getElementById('fetch-info-btn');
-            
-            if (!isbnInput) {
-                messageEl.textContent = 'ISBNを入力してください。';
-                messageEl.className = 'text-xs text-red-500 mt-2 font-medium';
-                return;
-            }
+            if (!isbnInput) { messageEl.textContent = 'ISBNを入力してください。'; messageEl.className = 'text-xs text-red-500 mt-2 font-medium'; return; }
 
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             messageEl.textContent = '検索中...';
-            messageEl.className = 'text-xs text-blue-500 mt-2';
 
             try {
                 let bookData = null;
@@ -539,25 +443,21 @@
                         bookData = { title: summary.title, author: summary.author, coverUrl: summary.cover || '' };
                     }
                 }
-
                 if (!bookData) {
                     const googleRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbnInput}`);
                     if (googleRes.ok) {
                         const data = await googleRes.json();
                         if (data.items && data.items.length > 0) {
-                            const volumeInfo = data.items[0].volumeInfo;
+                            const vInfo = data.items[0].volumeInfo;
                             bookData = {
-                                title: volumeInfo.title,
-                                author: volumeInfo.authors ? volumeInfo.authors.join(', ') : '',
-                                coverUrl: volumeInfo.imageLinks ? (volumeInfo.imageLinks.thumbnail || volumeInfo.imageLinks.smallThumbnail) : ''
+                                title: vInfo.title,
+                                author: vInfo.authors ? vInfo.authors.join(', ') : '',
+                                coverUrl: vInfo.imageLinks ? (vInfo.imageLinks.thumbnail || vInfo.imageLinks.smallThumbnail) : ''
                             };
-                            if (bookData.coverUrl && bookData.coverUrl.startsWith('http:')) {
-                                bookData.coverUrl = bookData.coverUrl.replace('http:', 'https:');
-                            }
+                            if (bookData.coverUrl && bookData.coverUrl.startsWith('http:')) bookData.coverUrl = bookData.coverUrl.replace('http:', 'https:');
                         }
                     }
                 }
-
                 if (bookData) {
                     document.getElementById('book-title').value = bookData.title || '';
                     document.getElementById('book-author').value = bookData.author || '';
@@ -583,10 +483,8 @@
             messageEl.className = 'text-xs text-gray-500 mt-2';
         }
 
-        async function saveBook(e) {
+        function saveBook(e) {
             e.preventDefault();
-            if (!userId) return;
-
             const errorMsg = document.getElementById('save-error-message');
             errorMsg.classList.add('hidden');
             
@@ -595,8 +493,9 @@
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 保存中...';
             btn.disabled = true;
 
-            const id = document.getElementById('book-id').value || crypto.randomUUID();
+            const id = document.getElementById('book-id').value || ('book_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5));
             const bookData = {
+                id: id,
                 isbn: document.getElementById('book-isbn').value.replace(/-/g, ''),
                 title: document.getElementById('book-title').value,
                 author: document.getElementById('book-author').value,
@@ -605,17 +504,24 @@
                 coverUrl: document.getElementById('book-cover').value,
                 review: document.getElementById('book-review').value,
                 rating: currentRating,
-                photos: currentPhotos // Base64文字列の配列
+                photos: currentPhotos
             };
 
             try {
-                // Firestoreへ保存
-                const docRef = doc(db, 'artifacts', appId, 'users', userId, 'books', id);
-                await setDoc(docRef, bookData);
+                const existingIndex = books.findIndex(b => b.id === id);
+                if (existingIndex >= 0) {
+                    books[existingIndex] = bookData;
+                } else {
+                    books.unshift(bookData);
+                }
+                
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(books));
                 closeBookModal();
+                updateStats();
+                renderBooks();
             } catch (err) {
-                console.error("保存エラー:", err);
-                errorMsg.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> クラウド保存に失敗しました。写真のサイズが大きすぎる可能性があります。枚数を減らして再試行してください。';
+                console.error(err);
+                errorMsg.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> 保存容量の上限に達した可能性があります。写真の枚数を減らしてください。';
                 errorMsg.classList.remove('hidden');
             } finally {
                 btn.innerHTML = originalBtnHtml;
@@ -623,24 +529,20 @@
             }
         }
 
-        async function handleDeleteClick(id) {
-            if (!userId) return;
+        function handleDeleteClick(id) {
             const btn = document.getElementById('delete-btn');
-            
             if (btn.dataset.confirm === 'true') {
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
                 try {
-                    const docRef = doc(db, 'artifacts', appId, 'users', userId, 'books', id);
-                    await deleteDoc(docRef);
+                    books = books.filter(b => b.id !== id);
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(books));
                     closeDetailModal();
-                } catch (e) {
-                    console.error("削除エラー:", e);
-                }
+                    updateStats();
+                    renderBooks();
+                } catch (e) { console.error(e); }
             } else {
                 btn.dataset.confirm = 'true';
                 btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 本当に削除？';
                 btn.classList.replace('bg-red-500', 'bg-red-700');
-                
                 clearTimeout(deleteConfirmTimeout);
                 deleteConfirmTimeout = setTimeout(() => {
                     btn.dataset.confirm = 'false';
@@ -650,7 +552,6 @@
             }
         }
 
-        // `renderBooks`内の `onclick` 属性から呼び出せるようにグローバル関数として登録
         window.openDetailFromGrid = function(id) {
             const book = books.find(b => b.id === id);
             if (!book) return;
@@ -662,25 +563,18 @@
             
             const dateStr = book.date ? new Date(book.date).toLocaleDateString() : '日付未設定';
             document.getElementById('detail-date').innerHTML = `<i class="far fa-calendar-alt mr-1"></i> ${dateStr}`;
-            
             document.getElementById('detail-isbn').textContent = book.isbn ? `ISBN: ${book.isbn}` : '';
             
-            if (book.review) {
-                document.getElementById('detail-review').textContent = book.review;
-                document.getElementById('detail-review').classList.remove('italic', 'text-gray-400');
-            } else {
-                document.getElementById('detail-review').textContent = '感想はまだ記録されていません。';
-                document.getElementById('detail-review').classList.add('italic', 'text-gray-400');
-            }
+            const reviewEl = document.getElementById('detail-review');
+            if (book.review) { reviewEl.textContent = book.review; reviewEl.classList.remove('italic', 'text-gray-400'); }
+            else { reviewEl.textContent = '感想はまだ記録されていません。'; reviewEl.classList.add('italic', 'text-gray-400'); }
             
-            const starsHtml = Array(5).fill(0).map((_, i) => 
+            document.getElementById('detail-rating').innerHTML = Array(5).fill(0).map((_, i) => 
                 `<i class="fas fa-star ${i < (book.rating || 0) ? 'text-yellow-400' : 'text-gray-300'}"></i>`
             ).join('');
-            document.getElementById('detail-rating').innerHTML = starsHtml;
 
             const photosContainer = document.getElementById('detail-photos-container');
             const photosGrid = document.getElementById('detail-photos');
-            
             if (book.photos && book.photos.length > 0) {
                 photosContainer.classList.remove('hidden');
                 photosGrid.innerHTML = '';
@@ -690,30 +584,21 @@
                     wrapper.onclick = () => {
                         const newTab = window.open();
                         newTab.document.body.innerHTML = `<body style="margin:0; background:#000; display:flex; justify-content:center; align-items:center; height:100vh;"><img src="${photoBase64}" style="max-width:100%; max-height:100vh; object-fit:contain;"></body>`;
-                        newTab.document.title = '思い出の写真';
                     };
-                    
                     const img = document.createElement('img');
                     img.src = photoBase64;
                     img.className = 'w-full h-full object-cover group-hover:scale-105 transition duration-300';
-                    
                     wrapper.appendChild(img);
                     photosGrid.appendChild(wrapper);
                 });
-            } else {
-                photosContainer.classList.add('hidden');
-            }
+            } else { photosContainer.classList.add('hidden'); }
 
-            // データIDをボタンに持たせる
             document.getElementById('edit-btn').dataset.id = book.id;
-            
             const deleteBtn = document.getElementById('delete-btn');
             deleteBtn.dataset.id = book.id;
             deleteBtn.dataset.confirm = 'false';
             deleteBtn.innerHTML = '<i class="fas fa-trash"></i> <span class="hidden sm:inline">削除</span>';
-            if (deleteBtn.classList.contains('bg-red-700')) {
-                deleteBtn.classList.replace('bg-red-700', 'bg-red-500');
-            }
+            if (deleteBtn.classList.contains('bg-red-700')) deleteBtn.classList.replace('bg-red-700', 'bg-red-500');
 
             detailModal.classList.remove('hidden');
             detailModal.classList.add('flex');
@@ -727,11 +612,8 @@
 
         function renderBooks() {
             bookGrid.innerHTML = '';
-            
             let filtered = books;
-            if (currentFilter !== 'all') {
-                filtered = books.filter(b => b.status === currentFilter);
-            }
+            if (currentFilter !== 'all') filtered = books.filter(b => b.status === currentFilter);
 
             if (filtered.length === 0) {
                 bookGrid.innerHTML = `
@@ -756,9 +638,7 @@
                 card.innerHTML = `
                     <div class="h-36 sm:h-48 w-full bg-gray-100 overflow-hidden relative">
                         <img src="${coverUrl}" alt="${book.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='${generatePlaceholder(book.title)}'">
-                        <div class="absolute top-2 right-2">
-                            ${getStatusBadge(book.status)}
-                        </div>
+                        <div class="absolute top-2 right-2">${getStatusBadge(book.status)}</div>
                     </div>
                     <div class="p-2 sm:p-3 flex flex-col flex-grow">
                         <h3 class="font-bold text-gray-800 text-xs sm:text-sm line-clamp-2 leading-tight mb-1" title="${book.title}">${book.title}</h3>
@@ -780,16 +660,10 @@
 
         function setRating(rating) {
             currentRating = rating;
-            const stars = document.querySelectorAll('#rating-stars i');
-            stars.forEach(star => {
+            document.querySelectorAll('#rating-stars i').forEach(star => {
                 const starVal = parseInt(star.dataset.value);
-                if (starVal <= rating) {
-                    star.classList.add('text-yellow-400');
-                    star.classList.remove('text-gray-300');
-                } else {
-                    star.classList.remove('text-yellow-400');
-                    star.classList.add('text-gray-300');
-                }
+                if (starVal <= rating) { star.classList.add('text-yellow-400'); star.classList.remove('text-gray-300'); }
+                else { star.classList.remove('text-yellow-400'); star.classList.add('text-gray-300'); }
             });
         }
 
@@ -805,11 +679,9 @@
         function generatePlaceholder(title) {
             const colors = ['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#10b981', '#06b6d4', '#3b82f6', '#6366f1', '#8b5cf6', '#d946ef', '#f43f5e'];
             const color = colors[title.length % colors.length];
-            const text = encodeURIComponent(title.substring(0, 2));
-            return `https://placehold.co/400x600/${color.replace('#','')}/ffffff?text=${text}`;
+            return `https://placehold.co/400x600/${color.replace('#','')}/ffffff?text=${encodeURIComponent(title.substring(0, 2))}`;
         }
 
-        // アプリ起動
         window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
