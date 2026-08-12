@@ -97,18 +97,18 @@
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[95vh] flex flex-col overflow-hidden">
             <div class="p-4 sm:p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-2xl">
                 <h3 class="text-lg sm:text-xl font-bold text-gray-800" id="modal-title">新しい本を記録</h3>
-                <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600 transition p-2 cursor-pointer">
+                <button type="button" id="close-modal-btn" class="text-gray-400 hover:text-gray-600 transition p-2 cursor-pointer">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
             
             <div class="p-4 sm:p-6 overflow-y-auto flex-grow">
-                <div id="book-form" class="space-y-5">
+                <div class="space-y-5">
                     <input type="hidden" id="book-id">
                     
                     <div class="bg-indigo-50 p-3 sm:p-4 rounded-lg border border-indigo-100">
                         <label for="book-isbn" class="block text-sm font-bold text-indigo-900 mb-2">
-                            <i class="fas fa-barcode mr-1"></i> ISBNで自動入力
+                            <i class="fas fa-barcode mr-1"></i> ISBNで自動入力 (表紙画像も取得)
                         </label>
                         <div class="flex flex-col sm:flex-row gap-2">
                             <input type="text" id="book-isbn" placeholder="例: 9784062779391" class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none transition bg-white">
@@ -116,12 +116,12 @@
                                 <i class="fas fa-search"></i> 検索
                             </button>
                         </div>
-                        <p class="text-xs text-gray-500 mt-2" id="isbn-message">13桁または10桁のISBNを入力して情報を取得できます。</p>
+                        <p class="text-xs text-gray-500 mt-2" id="isbn-message">13桁または10桁のISBNを入力して情報と表紙を取得できます。</p>
                     </div>
                     
                     <div>
                         <label for="book-title" class="block text-sm font-medium text-gray-700 mb-1">タイトル <span class="text-red-500">*</span></label>
-                        <input type="text" id="book-title" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                        <input type="text" id="book-title" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none transition" required>
                     </div>
                     
                     <div>
@@ -194,7 +194,7 @@
 
     <div id="detail-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-2 sm:p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[95vh] overflow-hidden flex flex-col md:flex-row relative">
-            <button id="close-detail-btn-mobile" class="absolute top-2 right-2 md:hidden z-10 bg-white/80 backdrop-blur text-gray-700 rounded-full w-8 h-8 shadow flex items-center justify-center cursor-pointer">
+            <button type="button" id="close-detail-btn-mobile" class="absolute top-2 right-2 md:hidden z-10 bg-white/80 backdrop-blur text-gray-700 rounded-full w-8 h-8 shadow flex items-center justify-center cursor-pointer">
                 <i class="fas fa-times"></i>
             </button>
             
@@ -205,7 +205,7 @@
             <div class="p-4 sm:p-6 md:w-2/3 flex flex-col overflow-y-auto">
                 <div class="flex justify-between items-start mb-2">
                     <div id="detail-status" class="mb-2"></div>
-                    <button id="close-detail-btn" class="hidden md:flex text-gray-400 hover:text-gray-600 transition p-1 cursor-pointer">
+                    <button type="button" id="close-detail-btn" class="hidden md:flex text-gray-400 hover:text-gray-600 transition p-1 cursor-pointer">
                         <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
@@ -233,10 +233,10 @@
                 </div>
                 
                 <div class="mt-6 sm:mt-8 pt-4 border-t flex justify-between gap-3">
-                    <button id="delete-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition flex items-center justify-center gap-2 shadow-sm text-sm w-1/3 md:w-auto cursor-pointer">
+                    <button type="button" id="delete-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition flex items-center justify-center gap-2 shadow-sm text-sm w-1/3 md:w-auto cursor-pointer">
                         <i class="fas fa-trash"></i> <span class="hidden sm:inline">削除</span>
                     </button>
-                    <button id="edit-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition flex items-center justify-center gap-2 shadow-sm text-sm flex-1 md:flex-none cursor-pointer">
+                    <button type="button" id="edit-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition flex items-center justify-center gap-2 shadow-sm text-sm flex-1 md:flex-none cursor-pointer">
                         <i class="fas fa-edit"></i> 編集
                     </button>
                 </div>
@@ -245,7 +245,7 @@
     </div>
 
     <script>
-        const STORAGE_KEY = 'reading_app_books_local_v2';
+        const STORAGE_KEY = 'reading_app_books_local_v3';
         let books = [];
         let currentRating = 0;
         let currentFilter = 'all';
@@ -287,7 +287,6 @@
             document.getElementById('close-detail-btn').addEventListener('click', closeDetailModal);
             document.getElementById('close-detail-btn-mobile').addEventListener('click', closeDetailModal);
             
-            // フォームの代わりに保存ボタンを直接クリック監視
             document.getElementById('save-btn').addEventListener('click', saveBook);
             document.getElementById('fetch-info-btn').addEventListener('click', fetchBookInfo);
             
@@ -444,10 +443,14 @@
                     const data = await openbdRes.json();
                     if (data && data.length > 0 && data[0] != null) {
                         const summary = data[0].summary;
-                        bookData = { title: summary.title, author: summary.author, coverUrl: summary.cover || '' };
+                        bookData = { 
+                            title: summary.title, 
+                            author: summary.author, 
+                            coverUrl: summary.cover || '' 
+                        };
                     }
                 }
-                if (!bookData) {
+                if (!bookData || !bookData.title) {
                     const googleRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbnInput}`);
                     if (googleRes.ok) {
                         const data = await googleRes.json();
@@ -458,15 +461,17 @@
                                 author: vInfo.authors ? vInfo.authors.join(', ') : '',
                                 coverUrl: vInfo.imageLinks ? (vInfo.imageLinks.thumbnail || vInfo.imageLinks.smallThumbnail) : ''
                             };
-                            if (bookData.coverUrl && bookData.coverUrl.startsWith('http:')) bookData.coverUrl = bookData.coverUrl.replace('http:', 'https:');
+                            if (bookData.coverUrl && bookData.coverUrl.startsWith('http:')) {
+                                bookData.coverUrl = bookData.coverUrl.replace('http:', 'https:');
+                            }
                         }
                     }
                 }
-                if (bookData) {
+                if (bookData && bookData.title) {
                     document.getElementById('book-title').value = bookData.title || '';
                     document.getElementById('book-author').value = bookData.author || '';
                     document.getElementById('book-cover').value = bookData.coverUrl || '';
-                    messageEl.textContent = '取得成功！';
+                    messageEl.textContent = '取得成功！表紙画像も読み込みました。';
                     messageEl.className = 'text-xs text-green-600 mt-2 font-bold';
                 } else {
                     messageEl.textContent = '見つかりませんでした。手動で入力してください。';
@@ -483,7 +488,7 @@
 
         function resetIsbnMessage() {
             const messageEl = document.getElementById('isbn-message');
-            messageEl.textContent = '13桁または10桁のISBNを入力して情報を取得できます。';
+            messageEl.textContent = '13桁または10桁のISBNを入力して情報と表紙を取得できます。';
             messageEl.className = 'text-xs text-gray-500 mt-2';
         }
 
