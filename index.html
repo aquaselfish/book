@@ -268,7 +268,7 @@
 
     <!-- STREAMING_CHUNK:Rendering main JavaScript application logic... -->
     <script>
-        const STORAGE_KEY = 'reading_app_books_local_v4';
+        const STORAGE_KEY = 'reading_app_books_local_v5';
         let books = [];
         let currentRating = 0;
         let currentFilter = 'all';
@@ -471,18 +471,10 @@
                         bookData = { 
                             title: summary.title, 
                             author: summary.author, 
-                            let coverUrl = summary.cover || '';
-                            if (!coverUrl) {
-                                coverUrl = `https://ndlsearch.ndl.go.jp/thumbnail/${isbn}.jpg`;
-                            }
-                            const bookData = {
-                            title,
-                            author,
-                            coverUrl,
-                                }; 
+                            coverUrl: summary.cover || '' 
                         };
-                        }
-                    }    
+                    }
+                }
                 if (!bookData || !bookData.title) {
                     const googleRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbnInput}`);
                     if (googleRes.ok) {
@@ -605,7 +597,7 @@
             const book = books.find(b => b.id === id);
             if (!book) return;
 
-            document.getElementById('detail-cover').src = book.coverUrl || generatePlaceholder(book.title);
+            document.getElementById('detail-cover').src = book.coverUrl && book.coverUrl.trim() !== '' ? book.coverUrl : generatePlaceholder(book.title);
             document.getElementById('detail-title').textContent = book.title;
             document.getElementById('detail-author').textContent = book.author || '著者不明';
             
@@ -688,7 +680,7 @@
                 card.className = 'bg-white rounded-xl shadow-sm hover:shadow-md transition cursor-pointer overflow-hidden flex flex-col h-full border border-gray-100 group hover:-translate-y-1 duration-200';
                 card.onclick = () => window.openDetailFromGrid(book.id);
 
-                const coverUrl = book.coverUrl || generatePlaceholder(book.title);
+                const coverUrl = (book.coverUrl && book.coverUrl.trim() !== '') ? book.coverUrl : generatePlaceholder(book.title);
                 const stars = Array(5).fill(0).map((_, i) => 
                     `<i class="fas fa-star text-[8px] sm:text-[10px] ${i < (book.rating || 0) ? 'text-yellow-400' : 'text-gray-300'}"></i>`
                 ).join('');
