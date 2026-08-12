@@ -468,11 +468,24 @@
                     const data = await openbdRes.json();
                     if (data && data.length > 0 && data[0] != null) {
                         const summary = data[0].summary;
-                        bookData = { 
-                            title: summary.title, 
-                            author: summary.author, 
-                            coverUrl: summary.cover || '' 
-                        };
+                        let coverUrl = "";
+
+if (vInfo.imageLinks) {
+    coverUrl =
+        vInfo.imageLinks.thumbnail ||
+        vInfo.imageLinks.smallThumbnail ||
+        "";
+}
+
+if (coverUrl.startsWith("http:")) {
+    coverUrl = coverUrl.replace("http:", "https:");
+}
+
+bookData = {
+    title: vInfo.title || "",
+    author: vInfo.authors ? vInfo.authors.join(", ") : "",
+    coverUrl: coverUrl
+};
                     }
                 }
                 if (!bookData || !bookData.title) {
